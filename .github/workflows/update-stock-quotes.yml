@@ -1,10 +1,17 @@
 name: 自動更新股價資料
 
+# 觸發時機：
+# 1. schedule：每個台灣時間下午 2:10（收盤後）自動執行（週一～週五）
+# 2. workflow_dispatch：也可以在 GitHub 網頁上手動點按鈕觸發，方便測試
 on:
   schedule:
-   - cron: '0 19 * * 1-5'
+    # cron 是 UTC 時間，台灣時間 = UTC+8
+    # 台灣凌晨 3:00 = UTC 19:00（前一天）
+    # TWSE STOCK_DAY_ALL 每日約凌晨 2~3 點更新完畢，3 點抓最穩定
+    - cron: '0 19 * * 1-5'
   workflow_dispatch: {}
 
+# 允許這個 workflow 把更新後的檔案寫回 repo
 permissions:
   contents: write
 
@@ -23,7 +30,7 @@ jobs:
       - name: 執行股價更新程式
         run: node update_stock_quotes.js
 
-      - name: 自動 commit
+      - name: 檢查 stock_quotes.json 是否有變化並自動 commit
         run: |
           if [ -n "$(git status --porcelain stock_quotes.json)" ]; then
             git config user.name "github-actions[bot]"
@@ -31,6 +38,7 @@ jobs:
             git add stock_quotes.json
             git commit -m "自動更新股價資料 $(date '+%Y-%m-%d %H:%M' --date='+8 hours')"
             git push
+            echo "已更新並推送 stock_quotes.json"
           else
-            echo "無變化，略過 commit"
+            echo "股價資料無變化（可能是非交易日），不需要 commit"
           fi
