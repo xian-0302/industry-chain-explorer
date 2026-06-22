@@ -453,7 +453,7 @@ async function loadStockQuotes(){
 
   const total = tseCount+otcCount;
   if(total>0){
-    if(statusText) statusText.textContent = `已載入 ${total} 檔個股漲跌幅（上市 ${tseCount}／上櫃 ${otcCount}）　來源：${source}${errMsgs.length? '　⚠ '+errMsgs.join('、'):''}`;
+    if(statusText) statusText.textContent = `📊 前日收盤漲跌　共 ${total} 檔（上市 ${tseCount}／上櫃 ${otcCount}）　${source}${errMsgs.length? '　⚠ '+errMsgs.join('、'):''}`;
   } else {
     if(statusText) statusText.textContent = `股價資料載入失敗：找不到 stock_quotes.json，且直接連線官方資料也被瀏覽器擋下（${errMsgs.join('、')||'未知錯誤'}）。請執行 update_stock_quotes.js 產生快照檔後再上傳。`;
   }
