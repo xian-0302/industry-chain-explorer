@@ -2,7 +2,7 @@ name: 自動更新股價資料
 
 on:
   schedule:
-    - cron: '30 7 * * 1-5'
+    - cron: '0 17 * * 1-5'
   workflow_dispatch: {}
 
 permissions:
