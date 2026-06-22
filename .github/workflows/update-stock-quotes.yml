@@ -1,0 +1,36 @@
+name: 自動更新股價資料
+
+on:
+  schedule:
+    - cron: '10 6 * * 1-5'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  update-stock-quotes:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 簽出 repo
+        uses: actions/checkout@v4
+
+      - name: 安裝 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 執行股價更新程式
+        run: node update_stock_quotes.js
+
+      - name: 自動 commit
+        run: |
+          if [ -n "$(git status --porcelain stock_quotes.json)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add stock_quotes.json
+            git commit -m "自動更新股價資料 $(date '+%Y-%m-%d %H:%M' --date='+8 hours')"
+            git push
+          else
+            echo "無變化，略過 commit"
+          fi
